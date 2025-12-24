@@ -125,6 +125,7 @@ const plot = (function () {
     /**
      * 
      * @param {Data []} dataSet The data set
+     * @returns {Data []} The verified data set
      */
     function verifyDataSet(dataSet) {
         const verified = []
@@ -136,5 +137,38 @@ const plot = (function () {
             throw error
         }
     }
+
+    /**
+     * 
+     * @param {Data []} dataSet The data set
+     * @param {PlotSettings} verifiedSettings The verified plot settings
+     * @returns {MaxAndMinValues} The maximum and minimum values for data set
+     */
+    function defineMaxAndMinValuesForData(dataSet, verifiedSettings) {
+
+        const values = {
+            xMax: verifiedSettings.xMax,
+            xMin: verifiedSettings.xMin,
+            yMax: verifiedSettings.yMax,
+            yMin: verifiedSettings.yMin
+        }
+
+        for (const data of dataSet) {
+            for (const x of data.x) {
+                if (x > values.xMax) values.xMax = x
+                if (x < values.xMin) values.xMin = x
+                //values.xMax = x > values.xMax ? values.xMax = x : values.xMax
+                //values.xMin = x < values.xMin ? values.xMin = x : values.xMin
+            }
+            for (const y of data.y) {
+                if (y > values.yMax) values.yMax = y
+                if (y < values.yMin) values.yMin = y
+                //values.yMax = y > values.yMax ? values.yMax = y : values.yMax
+                //values.yMin = y < values.yMin ? values.yMin = y : values.yMin
+            }
+        }
+        return values
+    }
+
 
 })()
