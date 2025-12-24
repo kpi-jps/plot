@@ -79,7 +79,7 @@ const plot = (function () {
     })
 
     /**
-     * 
+     * Gets a randon hexadecimal color code
      * @returns {string} The random hexadecimal color code
      */
     function getRandomHexColor() {
@@ -90,7 +90,7 @@ const plot = (function () {
     }
 
     /**
-     * 
+     * Verify the plot settings
      * @param {PlotSettings} settings Plot settings
      * @returns {PlotSettings} The verified plot settings
      */
@@ -110,7 +110,7 @@ const plot = (function () {
     }
 
     /**
-     * 
+     * Verify data
      * @param {Data} data Data object containing x and y values
      * @returns {Data} The verified data object
      */
@@ -123,7 +123,7 @@ const plot = (function () {
     }
 
     /**
-     * 
+     * Verify data set
      * @param {Data []} dataSet The data set
      * @returns {Data []} The verified data set
      */
@@ -139,7 +139,7 @@ const plot = (function () {
     }
 
     /**
-     * 
+     * Define the maximum and minimum values for a data set
      * @param {Data []} dataSet The data set
      * @param {PlotSettings} verifiedSettings The verified plot settings
      * @returns {MaxAndMinValues} The maximum and minimum values for data set
@@ -170,5 +170,34 @@ const plot = (function () {
         return values
     }
 
+      /**
+     * Creates a grapg frame
+     * @param {number} width Svg element width
+     * @param {number} height Svg element height
+     * @param {number} gap The gap among svg limits and the graph axis
+     */
+    function createGraphFrame(width, height, graphFrameSetback, graphFrameThickness) {
+        const setback = height > width ? height * graphFrameSetback / 100 : 2 * width * graphFrameSetback / 100
+        const graphX0 = 2 * setback
+        const graphY0 = graphFrameThickness + setback
+        const graphWidth = width - 2 * graphX0//2 * graphFrameSetback - graphFrameThickness 
+        const graphHeight = height - 2 * graphY0 //2 * graphFrameSetback - graphFrameThickness 
+        const frame = document.createElementNS(svgNameSpace, "rect")
+        frame.setAttributeNS(null, "id", "frame")
+        frame.setAttributeNS(null, "x", graphX0)
+        frame.setAttributeNS(null, "y", graphY0)
+        frame.setAttributeNS(null, "width", graphWidth)
+        frame.setAttributeNS(null, "height", graphHeight)
+        frame.setAttributeNS(null, "fill", "white")
+        frame.setAttributeNS(null, "stroke", "black")
+        frame.setAttributeNS(null, "stroke-width", graphFrameThickness)
+        return {
+            frame: frame,
+            graphX0: graphX0,
+            graphY0: graphY0,
+            graphHeight: graphHeight,
+            graphWidth: graphWidth
+        }
+    }
 
 })()
