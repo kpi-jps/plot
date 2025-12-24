@@ -157,21 +157,17 @@ const plot = (function () {
             for (const x of data.x) {
                 if (x > values.xMax) values.xMax = x
                 if (x < values.xMin) values.xMin = x
-                //values.xMax = x > values.xMax ? values.xMax = x : values.xMax
-                //values.xMin = x < values.xMin ? values.xMin = x : values.xMin
             }
             for (const y of data.y) {
                 if (y > values.yMax) values.yMax = y
                 if (y < values.yMin) values.yMin = y
-                //values.yMax = y > values.yMax ? values.yMax = y : values.yMax
-                //values.yMin = y < values.yMin ? values.yMin = y : values.yMin
             }
         }
         return values
     }
 
-      /**
-     * Creates a grapg frame
+    /**
+     * Creates a graph frame
      * @param {number} width Svg element width
      * @param {number} height Svg element height
      * @param {number} gap The gap among svg limits and the graph axis
@@ -202,13 +198,14 @@ const plot = (function () {
 
     /**
      * Creates the points 
-     * @param {number} pointSize 
-     * @param {MaxAndMinValues} maxAndMinValues 
-     * @param {number} graphX0 
-     * @param {number} graphY0 
-     * @param {number} graphHeight
-     * @param {number} graphWidth
-     * @param {Data} data   
+     * @param {number} pointSize The point size
+     * @param {MaxAndMinValues} maxAndMinValues The object containing the maximum and minimum values of data set
+     * @param {number} graphX0 The x coordenate of graph
+     * @param {number} graphY0 The y coordenate of graph
+     * @param {number} graphHeight The graph frame height
+     * @param {number} graphWidth The graph frame width
+     * @param {Data} data The data to be plotted
+     * @returns {SVGAElement []} The svg elements that represents the points
      */
     function createGraphPoints(pointSize, maxAndMinValues, graphX0, graphY0, graphHeight, graphWidth, data) {
         const xConversionFactor = graphWidth / (maxAndMinValues.xMax - maxAndMinValues.xMin)
@@ -240,10 +237,10 @@ const plot = (function () {
     }
     /**
      * Creates the graph marks
-     * @param {PlotSettings} verifiedSettings 
-     * @param {number} graphX0 
-     * @param {number} graphY0 
-     * @return { SVGAElement []}
+     * @param {PlotSettings} verifiedSettings The verified plot settings
+     * @param {number} graphX0 The x coordenate of graph
+     * @param {number} graphY0 The y coordenate of graph
+     * @return { SVGAElement []} The svg elements that represents axis graph marks
      */
     function createGraphAxisMarks(graphX0, graphY0, graphHeight, graphWidth, axisMarksInterval) {
         const marks = []
@@ -301,10 +298,10 @@ const plot = (function () {
 
     /**
     * Creates the graph grid
-    * @param {PlotSettings} verifiedSettings 
-    * @param {number} graphX0 
-    * @param {number} graphY0 
-    * @return { SVGAElement []}
+    * @param {PlotSettings} verifiedSettings The verified plot settings
+    * @param {number} graphX0 The x coordenate of graph
+    * @param {number} graphY0 The y coordenate of graph
+    * @return { SVGAElement []} The svg elements that represents the graph grids
     */
     function createGraphAxisGrid(graphX0, graphY0, graphHeight, graphWidth, axisMarksInterval) {
         const grids = []
@@ -343,11 +340,11 @@ const plot = (function () {
 
     /**
      * Creates the text of graph axis
-     * @param {PlotSettings} verifiedSettings 
-     * @param {MaxAndMinValues} maxAndMinValues 
-     * @param {number} graphX0 
-     * @param {number} graphY0 
-     * @return { SVGAElement []}
+     * @param {PlotSettings} verifiedSettings The verified plot settings
+     * @param {MaxAndMinValues} maxAndMinValues The object containing the maximum and minimum values of data set
+     * @param {number} graphX0 The x coordenate of graph
+     * @param {number} graphY0 The y coordenate of graph
+     * @return { SVGAElement []} The svg elements that represents the axis text 
      */
     function createGraphAxisText(graphX0, graphY0, graphHeight, graphWidth, verifiedSettings, maxAndMinValues) {
         const texts = []
@@ -388,11 +385,11 @@ const plot = (function () {
 
     /**
      * Creates the label of graph axis
-     * @param {PlotSettings} verifiedSettings 
-     * @param {MaxAndMinValues} maxAndMinValues 
-     * @param {number} graphX0 
-     * @param {number} graphY0 
-     * @return { SVGAElement []}
+     * @param {PlotSettings} verifiedSettings The verified plot settings
+     * @param {MaxAndMinValues} maxAndMinValues The object containing the maximum and minimum values of data set
+     * @param {number} graphX0 The x coordenate of graph
+     * @param {number} graphY0 The y coordenate of graph
+     * @return { SVGAElement []} The svg elements that represents the axis label 
      */
     function createGraphAxisLabel(graphX0, graphY0, graphHeight, graphWidth, verifiedSettings) {
         const labels = []
@@ -426,4 +423,63 @@ const plot = (function () {
         return labels
     }
 
+
+    return Object.seal({
+
+        /**
+         * Get a new svg scatter plot
+         * @param {PlotSettings} settings Graph settings
+         * @param {Data []} dataSet Data set
+         */
+        newSVGScatterPlot(settings, dataSet) {
+            try {
+                /**
+                 * @type {PlotSettings} Verified plot settings
+                 */
+                const verifiedSettings = verifySettings(settings)
+                /**
+                 * @type {Data []} Verified data set
+                 */
+                const verifiedDataSet = verifyDataSet(dataSet)
+                /**
+                 * @type {MaxAndMinValues} The object that containing the maximum and minimum values of data set
+                 */
+                const maxAndMinValues = defineMaxAndMinValuesForData(verifiedDataSet, verifiedSettings)
+                const width = verifiedSettings.width + 6 * verifiedSettings.fontSize
+                const height = verifiedSettings.height + 5 * verifiedSettings.fontSize
+                const elements = []
+                const svg = document.createElementNS(svgNameSpace, "svg")
+                svg.setAttributeNS(null, "viewBox", `0 0 ${width} ${height}`)
+                svg.setAttributeNS(null, "xlms", svgNameSpace)
+                const { frame, graphX0, graphY0, graphHeight, graphWidth } = createGraphFrame(width, height, verifiedSettings.graphFrameSetback, verifiedSettings.graphFrameThickness)
+                elements.push(frame)
+                const marks = createGraphAxisMarks(graphX0, graphY0, graphHeight, graphWidth, verifiedSettings.graphAxisMarksInterval)
+                elements.push(...marks)
+                if (verifiedSettings.grid) {
+                    const grids = createGraphAxisGrid(graphX0, graphY0, graphHeight, graphWidth, verifiedSettings.graphAxisMarksInterval)
+                    elements.push(...grids)
+                }
+                for (const data of verifiedDataSet) {
+                    const points = createGraphPoints(verifiedSettings.pointSize, maxAndMinValues, graphX0, graphY0, graphHeight, graphWidth, data)
+                    elements.push(...points)
+                }
+                const texts = createGraphAxisText(graphX0, graphY0, graphHeight, graphWidth, verifiedSettings, maxAndMinValues)
+                elements.push(...texts)
+                const labels = createGraphAxisLabel(graphX0, graphY0, graphHeight, graphWidth, verifiedSettings)
+                elements.push(...labels)
+                elements.forEach(m => svg.append(m))
+                return Object.seal({
+                    /**
+                     * Get the grapg as svg
+                     * @returns {SVGAElement} The graph as a svg element
+                     */
+                    getSVG() {
+                        return svg
+                    }
+                })
+            } catch (error) {
+                console.log(error)
+            }
+        }
+    })
 })()
