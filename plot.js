@@ -200,4 +200,230 @@ const plot = (function () {
         }
     }
 
+    /**
+     * Creates the points 
+     * @param {number} pointSize 
+     * @param {MaxAndMinValues} maxAndMinValues 
+     * @param {number} graphX0 
+     * @param {number} graphY0 
+     * @param {number} graphHeight
+     * @param {number} graphWidth
+     * @param {Data} data   
+     */
+    function createGraphPoints(pointSize, maxAndMinValues, graphX0, graphY0, graphHeight, graphWidth, data) {
+        const xConversionFactor = graphWidth / (maxAndMinValues.xMax - maxAndMinValues.xMin)
+        const yConversionFactor = graphHeight / (maxAndMinValues.yMax - maxAndMinValues.yMin)
+        //const coordenates = []
+        const points = []
+
+        for (let i = 0; i < data.x.length; i++) {
+            const pair = []
+            const pointThickness = 2
+            const fillColor = data.fill ? data.color : "white"
+            //equations checked by hand
+            const x = graphX0 + (data.x[i] - maxAndMinValues.xMin) * xConversionFactor
+            const y = graphY0 - (data.y[i] - maxAndMinValues.yMax) * yConversionFactor //inverted signal because Y decrease while the cartesian value increase
+            pair.push(x, y)
+            //coordenates.push(pair)
+            const point = document.createElementNS(svgNameSpace, "circle");
+            point.setAttributeNS(null, "class", "point")
+            point.setAttributeNS(null, "cx", x)
+            point.setAttributeNS(null, "cy", y)
+            point.setAttributeNS(null, "r", pointSize);
+            point.setAttributeNS(null, "fill", fillColor)
+            point.setAttributeNS(null, "stroke", data.color)
+            point.setAttributeNS(null, "stroke-width",pointThickness)
+            points.push(point)
+        }
+        //console.log(coordenates)
+        return points
+    }
+    /**
+     * Creates the graph marks
+     * @param {PlotSettings} verifiedSettings 
+     * @param {number} graphX0 
+     * @param {number} graphY0 
+     * @return { SVGAElement []}
+     */
+    function createGraphAxisMarks(graphX0, graphY0, graphHeight, graphWidth, axisMarksInterval) {
+        const marks = []
+        const markThickness = 2
+        const biggerMarkLenght = 10
+        const smallerMarkLenght = biggerMarkLenght / 2
+        //x axis
+        let position = graphX0
+        for (let i = 0; i < axisMarksInterval; i++) {
+            const biggerMark = document.createElementNS(svgNameSpace, "line")
+            biggerMark.setAttributeNS(null, "x1", position)
+            biggerMark.setAttributeNS(null, "x2", position)
+            biggerMark.setAttributeNS(null, "y1", graphY0 + graphHeight - biggerMarkLenght)
+            biggerMark.setAttributeNS(null, "y2", graphY0 + graphHeight)
+            biggerMark.setAttributeNS(null, "stroke", "black")
+            biggerMark.setAttributeNS(null, "stroke-width", markThickness)
+            marks.push(biggerMark)
+
+            const smallerMark = document.createElementNS(svgNameSpace, "line")
+            smallerMark.setAttributeNS(null, "x1", position + graphWidth / axisMarksInterval / 2)
+            smallerMark.setAttributeNS(null, "x2", position + graphWidth / axisMarksInterval / 2)
+            smallerMark.setAttributeNS(null, "y1", graphY0 + graphHeight - smallerMarkLenght)
+            smallerMark.setAttributeNS(null, "y2", graphY0 + graphHeight)
+            smallerMark.setAttributeNS(null, "stroke", "black")
+            smallerMark.setAttributeNS(null, "stroke-width", markThickness)
+            marks.push(smallerMark)
+
+            position += (graphWidth / axisMarksInterval)
+        }
+        //y axis
+        position = graphY0
+        for (let i = 0; i < axisMarksInterval; i++) {
+            const biggerMark = document.createElementNS(svgNameSpace, "line")
+            biggerMark.setAttributeNS(null, "y1", position)
+            biggerMark.setAttributeNS(null, "y2", position)
+            biggerMark.setAttributeNS(null, "x1", graphX0)
+            biggerMark.setAttributeNS(null, "x2", graphX0 + biggerMarkLenght)
+            biggerMark.setAttributeNS(null, "stroke", "black")
+            biggerMark.setAttributeNS(null, "stroke-width", markThickness)
+            marks.push(biggerMark)
+
+            const smallerMark = document.createElementNS(svgNameSpace, "line")
+            smallerMark.setAttributeNS(null, "y1", position + graphHeight / axisMarksInterval / 2)
+            smallerMark.setAttributeNS(null, "y2", position + graphHeight / axisMarksInterval / 2)
+            smallerMark.setAttributeNS(null, "x1", graphX0)
+            smallerMark.setAttributeNS(null, "x2", graphX0 + smallerMarkLenght)
+            smallerMark.setAttributeNS(null, "stroke", "black")
+            smallerMark.setAttributeNS(null, "stroke-width", markThickness)
+            marks.push(smallerMark)
+
+            position += (graphHeight / axisMarksInterval) //+ (markThickness / 2)
+        }
+        return marks
+    }
+
+    /**
+    * Creates the graph grid
+    * @param {PlotSettings} verifiedSettings 
+    * @param {number} graphX0 
+    * @param {number} graphY0 
+    * @return { SVGAElement []}
+    */
+    function createGraphAxisGrid(graphX0, graphY0, graphHeight, graphWidth, axisMarksInterval) {
+        const grids = []
+        const gridThickness = 1
+        const dashed = 5
+        //x axis
+        let position = graphX0
+        for (let i = 0; i < axisMarksInterval; i++) {
+            const xGrid = document.createElementNS(svgNameSpace, "line")
+            xGrid.setAttributeNS(null, "x1", position)
+            xGrid.setAttributeNS(null, "x2", position)
+            xGrid.setAttributeNS(null, "y1", graphY0)
+            xGrid.setAttributeNS(null, "y2", graphY0 + graphHeight)
+            xGrid.setAttributeNS(null, "stroke", "gray")
+            xGrid.setAttributeNS(null, "stroke-width", gridThickness)
+            xGrid.setAttributeNS(null, "stroke-dasharray", dashed)
+            grids.push(xGrid)
+            position += (graphWidth / axisMarksInterval)
+        }
+        //y axis
+        position = graphY0
+        for (let i = 0; i < axisMarksInterval; i++) {
+            const yGrid = document.createElementNS(svgNameSpace, "line")
+            yGrid.setAttributeNS(null, "y1", position)
+            yGrid.setAttributeNS(null, "y2", position)
+            yGrid.setAttributeNS(null, "x1", graphX0)
+            yGrid.setAttributeNS(null, "x2", graphX0 + graphWidth)
+            yGrid.setAttributeNS(null, "stroke", "black")
+            yGrid.setAttributeNS(null, "stroke-width", gridThickness)
+            yGrid.setAttributeNS(null, "stroke-dasharray", dashed)
+            grids.push(yGrid)
+            position += (graphHeight / axisMarksInterval) //+ (markThickness / 2)
+        }
+        return grids
+    }
+
+    /**
+     * Creates the text of graph axis
+     * @param {PlotSettings} verifiedSettings 
+     * @param {MaxAndMinValues} maxAndMinValues 
+     * @param {number} graphX0 
+     * @param {number} graphY0 
+     * @return { SVGAElement []}
+     */
+    function createGraphAxisText(graphX0, graphY0, graphHeight, graphWidth, verifiedSettings, maxAndMinValues) {
+        const texts = []
+        //x axis
+        let position = graphX0
+        const xInterval = (maxAndMinValues.xMax - maxAndMinValues.xMin) / verifiedSettings.graphAxisMarksInterval
+        let number = maxAndMinValues.xMin
+        for (let i = 0; i <= verifiedSettings.graphAxisMarksInterval; i++) {
+            const text = document.createElementNS(svgNameSpace, "text")
+            text.setAttributeNS(null, "x", position)
+            text.setAttributeNS(null, "y", graphY0 + graphHeight + verifiedSettings.fontSize * 2)
+            text.setAttributeNS(null, "text-anchor", "middle")
+            text.setAttributeNS(null, "font-family", verifiedSettings.font)
+            text.setAttributeNS(null, "font-size", verifiedSettings.fontSize)
+            text.textContent = number.toFixed(verifiedSettings.xDecimalPlaces)
+            texts.push(text)
+            position += (graphWidth / verifiedSettings.graphAxisMarksInterval)
+            number += xInterval
+        }
+        // y axis
+        position = graphY0
+        number = maxAndMinValues.yMax
+        const yInterval = (maxAndMinValues.yMax - maxAndMinValues.yMin) / verifiedSettings.graphAxisMarksInterval
+        for (let i = 0; i <= verifiedSettings.graphAxisMarksInterval; i++) {
+            const text = document.createElementNS(svgNameSpace, "text")
+            text.setAttributeNS(null, "y", position + verifiedSettings.fontSize / 2)
+            text.setAttributeNS(null, "x", graphX0 - verifiedSettings.fontSize * 3)
+            text.setAttributeNS(null, "text-anchor", "middle")
+            text.setAttributeNS(null, "font-family", verifiedSettings.font)
+            text.setAttributeNS(null, "font-size", verifiedSettings.fontSize)
+            text.textContent = number.toFixed(verifiedSettings.yDecimalPlaces)
+            texts.push(text)
+            position += (graphHeight / verifiedSettings.graphAxisMarksInterval)
+            number -= yInterval
+        }
+        return texts
+    }
+
+    /**
+     * Creates the label of graph axis
+     * @param {PlotSettings} verifiedSettings 
+     * @param {MaxAndMinValues} maxAndMinValues 
+     * @param {number} graphX0 
+     * @param {number} graphY0 
+     * @return { SVGAElement []}
+     */
+    function createGraphAxisLabel(graphX0, graphY0, graphHeight, graphWidth, verifiedSettings) {
+        const labels = []
+        let x, y
+        //x axis
+        x = graphX0 + graphWidth / 2
+        y = 2 * graphY0 + graphHeight - verifiedSettings.fontSize / 2
+        const xAxisLabel = document.createElementNS(svgNameSpace, "text")
+        xAxisLabel.setAttributeNS(null, "x", x)
+        xAxisLabel.setAttributeNS(null, "y", y)
+        xAxisLabel.setAttributeNS(null, "text-anchor", "middle")
+        xAxisLabel.setAttributeNS(null, "font-weight", "bold")
+        xAxisLabel.setAttributeNS(null, "font-family", verifiedSettings.font)
+        xAxisLabel.setAttributeNS(null, "font-size", verifiedSettings.fontSize * 1.20)
+        xAxisLabel.textContent = verifiedSettings.xLabel
+        labels.push(xAxisLabel)
+        //y axis
+        x = graphX0 - graphX0 / 2 - verifiedSettings.fontSize
+        y = graphY0 + graphHeight / 2
+        const yAxisLabel = document.createElementNS(svgNameSpace, "text")
+        yAxisLabel.setAttributeNS(null, "x", x)
+        yAxisLabel.setAttributeNS(null, "y", y)
+        yAxisLabel.setAttributeNS(null, "text-anchor", "middle")
+        yAxisLabel.setAttributeNS(null, "font-weight", "bold")
+        yAxisLabel.setAttributeNS(null, "font-family", verifiedSettings.font)
+        yAxisLabel.setAttributeNS(null, "font-size", verifiedSettings.fontSize * 1.20)
+        yAxisLabel.setAttributeNS(null, "font-size", verifiedSettings.fontSize * 1.20)
+        yAxisLabel.setAttributeNS(null, "transform", `rotate(-90, ${x}, ${y})`)
+        yAxisLabel.textContent = verifiedSettings.yLabel
+        labels.push(yAxisLabel)
+        return labels
+    }
+
 })()
