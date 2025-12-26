@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="plot.js"></script>
+
+    <title>Document</title>
+</head>
+<body>
+    <main>
+    </main>
+    <script>
+        function x2() {
+            const x = []
+            const y = []
+            for (let i = -100; i <= 200; i++) {
+                x.push(i)
+                y.push(Math.pow(i, 2))
+            }
+            return {
+                x: x,
+                y: y,
+                color: "red",
+                fill: true,
+                pointSize: 0.5
+            }
+        }
+        
+        const x2data = x2()
+        const data = [
+            {
+                x : [-20, -10 ,0 , 10, 20, 30],
+                y : [-10000, -5000, 0, 5000, 10000, 20000],
+                color: "black",
+                fill: true
+            },
+            {
+                x : [-10, -5, 0 , 5, 10],
+                y : [-10000, -5000, 0 , 5000, 10000]
+            },
+            x2data
+        ]
+
+        const g = plot.newSVGScatterPlot(
+            {
+                yMax:50000, 
+                yMin: -2000, 
+                xMin: -120, 
+                xMax: 300, 
+                graphAxisMarksInterval: 6, 
+                grid: true
+            }, 
+            data, 
+            null).getSVG()
+        document.querySelector("main").append(g)
+    </script>
+</body>
+
+</html>
