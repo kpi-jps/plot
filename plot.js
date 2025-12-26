@@ -36,6 +36,7 @@ const plot = (function () {
      * @property {number []} y Values of y
      * @property {string} color Color name or hexadecimal color code
      * @property {boolean} fill Flag to sinalize if data point is filled 
+     * @property {number} pointSize The size of point to data plot
      */
 
     /**
@@ -226,7 +227,7 @@ const plot = (function () {
             point.setAttributeNS(null, "class", "point")
             point.setAttributeNS(null, "cx", x)
             point.setAttributeNS(null, "cy", y)
-            point.setAttributeNS(null, "r", pointSize);
+            point.setAttributeNS(null, "r", !data.pointSize ? pointSize : data.pointSize);
             point.setAttributeNS(null, "fill", fillColor)
             point.setAttributeNS(null, "stroke", data.color)
             point.setAttributeNS(null, "stroke-width",pointThickness)
