@@ -130,7 +130,7 @@ const plot = (function () {
      */
     function verifyDataSet(dataSet) {
         const verified = []
-        if (!data instanceof Array) throw new Error("Invalid data set!")
+        if (!dataSet instanceof Array) throw new Error("Invalid data set!")
         try {
             for (const data of dataSet) verified.push(verifyData(data))
             return verified
