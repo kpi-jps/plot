@@ -236,6 +236,48 @@ const plot = (function () {
         //console.log(coordenates)
         return points
     }
+
+    /**
+     * Creates the points 
+     * @param {MaxAndMinValues} maxAndMinValues The object containing the maximum and minimum values of data set
+     * @param {number} graphX0 The x coordenate of graph
+     * @param {number} graphY0 The y coordenate of graph
+     * @param {number} graphHeight The graph frame height
+     * @param {number} graphWidth The graph frame width
+     * @param {Data} data The data to be plotted
+     * @returns {SVGAElement []} The svg elements that represents the points
+     */
+    function createGraphLines(maxAndMinValues, graphX0, graphY0, graphHeight, graphWidth, data) {
+        const xConversionFactor = graphWidth / (maxAndMinValues.xMax - maxAndMinValues.xMin)
+        const yConversionFactor = graphHeight / (maxAndMinValues.yMax - maxAndMinValues.yMin)
+        //const coordenates = []
+        const lines = []
+
+        for (let i = 0; i < data.x.length - 1; i++) {
+            const pair = []
+            const lineThickness = 2
+            const fillColor = data.fill ? data.color : "white"
+            //equations checked by hand
+            const x1 = graphX0 + (data.x[i] - maxAndMinValues.xMin) * xConversionFactor
+            const y1 = graphY0 - (data.y[i] - maxAndMinValues.yMax) * yConversionFactor //inverted signal because Y decrease while the cartesian value increase
+            const x2 = graphX0 + (data.x[i+1] - maxAndMinValues.xMin) * xConversionFactor
+            const y2 = graphY0 - (data.y[i+1] - maxAndMinValues.yMax) * yConversionFactor //inverted signal because Y decrease while the cartesian value increase
+            //pair.push(x, y)
+            //coordenates.push(pair)
+            const line = document.createElementNS(svgNameSpace, "line");
+            line.setAttributeNS(null, "class", "line")
+            line.setAttributeNS(null, "x1", x1)
+            line.setAttributeNS(null, "y1", y1)
+            line.setAttributeNS(null, "x2", x2)
+            line.setAttributeNS(null, "y2", y2)
+            line.setAttributeNS(null, "fill", fillColor)
+            line.setAttributeNS(null, "stroke", data.color)
+            line.setAttributeNS(null, "stroke-width",lineThickness)
+            lines.push(line)
+        }
+        //console.log(coordenates)
+        return lines
+    }
     /**
      * Creates the graph marks
      * @param {PlotSettings} verifiedSettings The verified plot settings
@@ -463,6 +505,62 @@ const plot = (function () {
                 for (const data of verifiedDataSet) {
                     const points = createGraphPoints(verifiedSettings.pointSize, maxAndMinValues, graphX0, graphY0, graphHeight, graphWidth, data)
                     elements.push(...points)
+                }
+                const texts = createGraphAxisText(graphX0, graphY0, graphHeight, graphWidth, verifiedSettings, maxAndMinValues)
+                elements.push(...texts)
+                const labels = createGraphAxisLabel(graphX0, graphY0, graphHeight, graphWidth, verifiedSettings)
+                elements.push(...labels)
+                elements.forEach(m => svg.append(m))
+                return Object.seal({
+                    /**
+                     * Get the grapg as svg
+                     * @returns {SVGAElement} The graph as a svg element
+                     */
+                    getSVG() {
+                        return svg
+                    }
+                })
+            } catch (error) {
+                console.log(error)
+            }
+        },
+
+         /**
+         * Get a new svg scatter plot
+         * @param {PlotSettings} settings Graph settings
+         * @param {Data []} dataSet Data set
+         */
+        newSVGLinePlot(settings, dataSet) {
+            try {
+                /**
+                 * @type {PlotSettings} Verified plot settings
+                 */
+                const verifiedSettings = verifySettings(settings)
+                /**
+                 * @type {Data []} Verified data set
+                 */
+                const verifiedDataSet = verifyDataSet(dataSet)
+                /**
+                 * @type {MaxAndMinValues} The object that containing the maximum and minimum values of data set
+                 */
+                const maxAndMinValues = defineMaxAndMinValuesForData(verifiedDataSet, verifiedSettings)
+                const width = verifiedSettings.width + 6 * verifiedSettings.fontSize
+                const height = verifiedSettings.height + 5 * verifiedSettings.fontSize
+                const elements = []
+                const svg = document.createElementNS(svgNameSpace, "svg")
+                svg.setAttributeNS(null, "viewBox", `0 0 ${width} ${height}`)
+                svg.setAttributeNS(null, "xlms", svgNameSpace)
+                const { frame, graphX0, graphY0, graphHeight, graphWidth } = createGraphFrame(width, height, verifiedSettings.graphFrameSetback, verifiedSettings.graphFrameThickness)
+                elements.push(frame)
+                const marks = createGraphAxisMarks(graphX0, graphY0, graphHeight, graphWidth, verifiedSettings.graphAxisMarksInterval)
+                elements.push(...marks)
+                if (verifiedSettings.grid) {
+                    const grids = createGraphAxisGrid(graphX0, graphY0, graphHeight, graphWidth, verifiedSettings.graphAxisMarksInterval)
+                    elements.push(...grids)
+                }
+                for (const data of verifiedDataSet) {
+                    const lines = createGraphLines(maxAndMinValues, graphX0, graphY0, graphHeight, graphWidth, data)
+                    elements.push(...lines)
                 }
                 const texts = createGraphAxisText(graphX0, graphY0, graphHeight, graphWidth, verifiedSettings, maxAndMinValues)
                 elements.push(...texts)

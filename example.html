@@ -9,6 +9,7 @@
 
     <title>Document</title>
 </head>
+
 <body>
     <main>
     </main>
@@ -28,34 +29,48 @@
                 pointSize: 0.5
             }
         }
-        
+
         const x2data = x2()
         const data = [
             {
-                x : [-20, -10 ,0 , 10, 20, 30],
-                y : [-10000, -5000, 0, 5000, 10000, 20000],
+                x: [-20, -10, 0, 10, 20, 30],
+                y: [-10000, -5000, 0, 5000, 10000, 20000],
                 color: "black",
                 fill: true
             },
             {
-                x : [-10, -5, 0 , 5, 10],
-                y : [-10000, -5000, 0 , 5000, 10000]
+                x: [-10, -5, 0, 5, 10],
+                y: [-10000, -5000, 0, 5000, 10000]
             },
             x2data
         ]
 
-        const g = plot.newSVGScatterPlot(
+        const gp = plot.newSVGScatterPlot(
             {
-                yMax:50000, 
-                yMin: -2000, 
-                xMin: -120, 
-                xMax: 300, 
-                graphAxisMarksInterval: 6, 
-                grid: true
-            }, 
-            data, 
+                yMax: 50000,
+                yMin: -2000,
+                xMin: -120,
+                xMax: 300,
+                graphAxisMarksInterval: 6,
+                grid: false
+            },
+            data,
             null).getSVG()
-        document.querySelector("main").append(g)
+
+        document.querySelector("main").append(gp)
+
+        const gl = plot.newSVGLinePlot(
+            {
+                yMax: 50000,
+                yMin: -2000,
+                xMin: -120,
+                xMax: 300,
+                graphAxisMarksInterval: 6,
+                grid: false
+            },
+            [x2data],
+            null).getSVG()
+        document.querySelector("main").append(gl)
     </script>
 </body>
 
